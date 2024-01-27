@@ -80,9 +80,30 @@ def process_openai_response(response):
 
 
 @app.post("/api/analyze-photo")
-async def analyze_photo_route(file: UploadFile | None = None):
-    if not file:
-        print("reached bad")
-        return {"message": "No upload file sent"}
+async def analyze_photo_route(file_path: str):
+    if not file_path:
+        return {"message": "No file path provided"}
     else:
-        return await analyze_photo(file)
+        return await analyze_photo(file_path)
+
+
+@app.post("/api/save-image")
+async def save_image_route(data: dict):
+    try:
+        image_base64 = data.get("image", "")
+        file_name = data.get("fileName", "photo.jpg")
+
+        if image_base64:
+            # Convert base64 to binary and save the image
+            image_binary = base64.b64decode(image_base64)
+            image_path = f"/path/to/your/image/folder/{file_name}"
+
+            with open(image_path, "wb") as image_file:
+                image_file.write(image_binary)
+
+            return {"message": "Image saved successfully", "file_path": image_path}
+        else:
+            return {"message": "No image data provided"}
+
+    except Exception as e:
+        return {"message": f"Error saving image: {str}"}

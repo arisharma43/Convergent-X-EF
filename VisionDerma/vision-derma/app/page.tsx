@@ -4,7 +4,6 @@ import axios from "axios";
 import Webcam from "react-webcam";
 import { Button, Container, Typography } from "@mui/material";
 import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
-import { type } from "os";
 
 const videoConstraints = {
   width: 400,
@@ -22,53 +21,47 @@ export default function Home() {
     if (currentWebcam) {
       const pictureSrc = currentWebcam.getScreenshot();
       setImg(pictureSrc || ""); // Ensure an empty string if null
+
+      if (pictureSrc) {
+        // Save the image to a folder (you may need to adjust the path)
+        const fileName = `photo_${Date.now()}.jpg`;
+        const filePath = `/path/to/your/image/folder/${fileName}`;
+
+        // Assuming you have a backend endpoint to handle the file path
+        sendFilePathToBackend(filePath);
+
+        // Optionally, you can save the image to the server using a backend API
+        saveImageOnServer(pictureSrc, fileName);
+      }
     } else {
       console.error("Webcam not initialized");
     }
   }, [webcamRef]);
 
-  const handleTakePhoto = async () => {
-    capturePhoto();
-    if (img) {
-      sendPhoto(img);
-    }
-  };
-
-  const dataURItoBlob = (dataURI: string) => {
-    const byteString = atob(dataURI.split(",")[1]);
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ab], { type: "image/jpeg" });
-  };
-
-  const sendPhoto = async (photoBase64: string) => {
+  const saveImageOnServer = async (photoBase64: string, fileName: string) => {
     try {
-      if (!photoBase64) {
-        console.error("Photo not captured");
-        return;
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/save-image",
+        {
+          image: photoBase64,
+          fileName: fileName,
+        }
+      );
+
+      if (response.status !== 200) {
+        console.error("Failed to save image on server");
       }
+    } catch (error) {
+      console.error("Error saving image on server:", error);
+    }
+  };
 
-      // Convert base64 to a Blob
-      const blob = dataURItoBlob(photoBase64);
-
-      // Create FormData and append the Blob
-      const formData = new FormData();
-      formData.append("image", blob, "photo.jpg");
-
-      console.log(formData);
-
+  const sendFilePathToBackend = async (filePath: string) => {
+    try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/analyze-photo",
-        formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          filePath: filePath,
         }
       );
 
@@ -80,8 +73,12 @@ export default function Home() {
         console.error("Failed to analyze photo");
       }
     } catch (error) {
-      console.error("Error uploading photo:", error);
+      console.error("Error sending file path to backend:", error);
     }
+  };
+
+  const handleTakePhoto = () => {
+    capturePhoto();
   };
 
   return (
