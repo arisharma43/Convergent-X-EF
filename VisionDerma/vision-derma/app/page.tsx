@@ -4,6 +4,7 @@ import axios from "axios";
 import Webcam from "react-webcam";
 import { Button, Container, Typography } from "@mui/material";
 import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
+import { type } from "os";
 
 const videoConstraints = {
   width: 400,
@@ -29,9 +30,20 @@ export default function Home() {
   const handleTakePhoto = async () => {
     capturePhoto();
     if (img) {
-      console.log("Picture Source:", img);
       sendPhoto(img);
     }
+  };
+
+  const dataURItoBlob = (dataURI: string) => {
+    const byteString = atob(dataURI.split(",")[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ab], { type: "image/jpeg" });
   };
 
   const sendPhoto = async (photoBase64: string) => {
@@ -41,16 +53,29 @@ export default function Home() {
         return;
       }
 
+      // Convert base64 to a Blob
+      const blob = dataURItoBlob(photoBase64);
+
+      // Create FormData and append the Blob
+      const formData = new FormData();
+      formData.append("image", blob, "photo.jpg");
+
+      console.log(formData);
+
       const response = await axios.post(
-        "http://localhost:3000/api/analyze-photo",
+        "http://127.0.0.1:8000/api/analyze-photo",
+        formData,
         {
-          image: photoBase64,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
       if (response.status === 200) {
         const data = response.data;
-        setApiResponse(data);
+        setApiResponse(JSON.stringify(data));
+        console.log(apiResponse);
       } else {
         console.error("Failed to analyze photo");
       }
