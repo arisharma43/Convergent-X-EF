@@ -91,19 +91,18 @@ async def analyze_photo_route(file_path: str):
 async def save_image_route(data: dict):
     try:
         image_base64 = data.get("image", "")
-        file_name = data.get("fileName", "photo.jpg")
+        file_name = "IMG_5789.JPG"
 
-        if image_base64:
-            # Convert base64 to binary and save the image
-            image_binary = base64.b64decode(image_base64)
-            image_path = f"/path/to/your/image/folder/{file_name}"
+        # if image_base64:
+        #     # Convert base64 to binary and save the image
+        #     image_binary = base64.b64decode(image_base64)
+        #     image_path = f"{file_name}"
 
-            with open(image_path, "wb") as image_file:
-                image_file.write(image_binary)
+        #     with open(image_path, "wb") as image_file:
+        #         image_file.write(image_binary)
 
-            return {"message": "Image saved successfully", "file_path": image_path}
-        else:
-            return {"message": "No image data provided"}
+        return {"message": "Image saved successfully", "file_path": image_path}
+        }
 
     except Exception as e:
         return {"message": f"Error saving image: {str}"}

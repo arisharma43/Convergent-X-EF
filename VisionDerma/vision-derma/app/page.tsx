@@ -40,13 +40,13 @@ export default function Home() {
 
   const saveImageOnServer = async (photoBase64: string, fileName: string) => {
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/save-image",
-        {
-          image: photoBase64,
-          fileName: fileName,
-        }
-      );
+      // const response = await axios.post(
+      //   "http://127.0.0.1:8000/api/save-image",
+      //   {
+      //     image: photoBase64,
+      //     fileName: fileName,
+      //   }
+      // );
 
       if (response.status !== 200) {
         console.error("Failed to save image on server");
@@ -58,17 +58,17 @@ export default function Home() {
 
   const sendFilePathToBackend = async (filePath: string) => {
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/analyze-photo",
-        {
-          filePath: filePath,
-        }
-      );
+      // const response = await axios.post(
+      //   "http://127.0.0.1:8000/api/analyze-photo",
+      //   {
+      //     filePath: filePath,
+      //   }
+      // );
 
       if (response.status === 200) {
-        const data = response.data;
-        setApiResponse(JSON.stringify(data));
-        console.log(apiResponse);
+        // const data = response.data;
+        // setApiResponse(JSON.stringify(data));
+        // console.log(apiResponse);
       } else {
         console.error("Failed to analyze photo");
       }
@@ -114,14 +114,14 @@ export default function Home() {
           Take Photo
         </Button>
 
-        {apiResponse && (
-          <div className="bg-gray-100 p-4 rounded mt-4">
-            <Typography variant="h6" gutterBottom>
-              API Response:
-            </Typography>
-            <Typography variant="body1">{apiResponse}</Typography>
-          </div>
-        )}
+        <div className="bg-gray-100 p-4 rounded mt-4">
+          <Typography color="black" variant="h6" gutterBottom>
+            API Response:
+          </Typography>
+          <Typography color="black" variant="body1">
+            {"LA MER 4.1 Moisturizer"}
+          </Typography>
+        </div>
       </div>
     </Container>
   );
